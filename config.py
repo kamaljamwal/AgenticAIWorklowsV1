@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     aws_bedrock_model: str = os.getenv("AWS_BEDROCK_MODEL", "anthropic.claude-3-sonnet-20240229-v1:0")
     
     # GROQ Configuration
-    groq_api_key: str = os.getenv("GROQ_API_KEY", "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")
+    groq_api_key: str = os.getenv("GROQ_API_KEY", "")
     groq_model: str = os.getenv("GROQ_MODEL", "llama3-8b-8192")  # Valid GROQ models: llama3-8b-8192, llama3-70b-8192, mixtral-8x7b-32768, gemma-7b-it
     
     # Google Gemini Configuration (FREE with generous limits)
