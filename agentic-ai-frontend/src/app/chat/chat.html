@@ -1,0 +1,169 @@
+<div class="chat-container">
+  <!-- Header -->
+  <header class="chat-header">
+    <div class="header-content">
+      <h1 class="app-title">
+        <span class="icon">🤖</span>
+        Agentic AI Workflows
+      </h1>
+      <p class="app-subtitle">Intelligent search across multiple data sources</p>
+    </div>
+  </header>
+
+  <!-- Messages Area -->
+  <div class="messages-container" #messagesContainer>
+    <div class="messages-wrapper">
+      @for (message of messages; track message.id) {
+        <div class="message" [ngClass]="{'user-message': message.type === 'user', 'assistant-message': message.type === 'assistant', 'loading': message.isLoading}">
+          <div class="message-content">
+            @if (message.type === 'user') {
+              <div class="user-avatar">👤</div>
+            } @else {
+              <div class="assistant-avatar">🤖</div>
+            }
+            
+            <div class="message-text">
+              @if (message.isLoading) {
+                <div class="loading-dots">
+                  <span></span><span></span><span></span>
+                </div>
+              } @else {
+                <div class="text-content" [innerHTML]="message.content | markdown"></div>
+                
+                @if (message.searchResponse) {
+                  <div class="search-results">
+                    @for (result of message.searchResponse.results; track result.agent_type) {
+                      @if (result.success && result.data.length > 0) {
+                        <div class="agent-results">
+                          <h4 class="agent-title">
+                            <span class="agent-icon">{{ getAgentIcon(result.agent_type) }}</span>
+                            {{ result.agent_type }} ({{ result.data.length }} results)
+                          </h4>
+                          
+                          <div class="results-list">
+                            @for (item of result.data; track $index) {
+                              <div class="result-item">
+                                @if (result.agent_type === 'FILESYSTEM' && item.path) {
+                                  <div class="file-result">
+                                    <div class="file-info">
+                                      <strong class="file-name">{{ item.name || item.path.split('/').pop() }}</strong>
+                                      <span class="file-path">{{ item.path }}</span>
+                                      @if (item.size) {
+                                        <span class="file-size">({{ formatFileSize(item.size) }})</span>
+                                      }
+                                    </div>
+                                    <button class="preview-btn" (click)="previewFile(item.path)">
+                                      👁️ Preview
+                                    </button>
+                                  </div>
+                                } @else if (result.agent_type === 'API' && item.url) {
+                                  <div class="api-result">
+                                    <strong>{{ item.method || 'GET' }}</strong>
+                                    <a [href]="item.url" target="_blank" class="api-link">{{ item.url }}</a>
+                                    @if (item.status) {
+                                      <span class="status-badge" [ngClass]="{'success': item.status < 400, 'error': item.status >= 400}">
+                                        {{ item.status }}
+                                      </span>
+                                    }
+                                  </div>
+                                } @else if (result.agent_type === 'URL' && item.url) {
+                                  <div class="url-result">
+                                    <a [href]="item.url" target="_blank" class="url-link">
+                                      <strong>{{ item.title || item.url }}</strong>
+                                    </a>
+                                    @if (item.description) {
+                                      <p class="url-description">{{ item.description }}</p>
+                                    }
+                                  </div>
+                                } @else {
+                                  <div class="generic-result">
+                                    <pre>{{ item | json }}</pre>
+                                  </div>
+                                }
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+              }
+            </div>
+          </div>
+          
+          <div class="message-timestamp">
+            {{ message.timestamp | date:'short' }}
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-container">
+    <div class="input-wrapper">
+      <textarea 
+        #messageInput
+        [(ngModel)]="currentMessage" 
+        (keydown)="onKeyPress($event)"
+        (input)="onInputChange()"
+        placeholder="Ask me anything about your data sources..."
+        class="message-input"
+        rows="1"
+        [disabled]="isLoading">
+      </textarea>
+      <button 
+        (click)="sendMessage()" 
+        [disabled]="isLoading"
+        class="send-button"
+        [class.enabled]="!isLoading">
+        @if (isLoading) {
+          <span class="loading-spinner">⏳</span>
+        } @else {
+          <span class="send-icon">➤</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- File Preview Modal -->
+@if (showFileModal && selectedFilePreview) {
+  <div class="modal-overlay" (click)="closeFileModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ selectedFilePreview.file_info.name }}</h3>
+        <button class="close-btn" (click)="closeFileModal()">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="file-metadata">
+          <div class="metadata-item">
+            <strong>Path:</strong> 
+            <span class="file-path">{{ selectedFilePreview.file_info.path }}</span>
+            <button class="copy-btn" (click)="copyToClipboard(selectedFilePreview.file_info.path)" title="Copy path">
+              📋
+            </button>
+          </div>
+          <div class="metadata-item">
+            <strong>Size:</strong> {{ formatFileSize(selectedFilePreview.file_info.size) }}
+          </div>
+          <div class="metadata-item">
+            <strong>Modified:</strong> {{ formatDate(selectedFilePreview.file_info.modified) }}
+          </div>
+        </div>
+        
+        <div class="file-content">
+          <h4>Content Preview:</h4>
+          <pre class="content-preview">{{ selectedFilePreview.content }}</pre>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeFileModal()">Close</button>
+        <button class="btn btn-primary" (click)="copyToClipboard(selectedFilePreview.content)">Copy Content</button>
+      </div>
+    </div>
+  </div>
+}

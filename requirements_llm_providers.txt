@@ -1,0 +1,67 @@
+# Additional LLM Provider Dependencies
+# Install only the providers you plan to use
+
+# ===== OPEN SOURCE & FREE LLM PROVIDERS =====
+
+# Google Gemini (FREE with generous limits)
+google-generativeai>=0.3.0
+
+# Ollama (Local Models - FREE)
+# No additional Python packages needed, just install Ollama from https://ollama.ai/
+# Then run: ollama pull llama2 (or any other model)
+
+# Hugging Face Transformers (Local Inference - FREE)
+transformers>=4.30.0
+torch>=2.0.0
+accelerate>=0.20.0  # For faster loading
+sentencepiece>=0.1.99  # For some models
+
+# Together AI (Free Tier Available)
+together>=0.2.0
+
+# Replicate (Free Tier Available)
+replicate>=0.15.0
+
+# Local OpenAI-compatible servers (FREE)
+# No additional packages needed - uses the same openai package
+# Works with:
+# - LM Studio: https://lmstudio.ai/
+# - text-generation-webui: https://github.com/oobabooga/text-generation-webui
+# - FastChat: https://github.com/lm-sys/FastChat
+# - vLLM: https://github.com/vllm-project/vllm
+
+# ===== EXISTING PROVIDERS =====
+# These are already in the main requirements.txt
+# openai>=1.0.0
+# boto3>=1.28.0  # For AWS Bedrock
+# groq>=0.4.0
+
+# ===== OPTIONAL GPU ACCELERATION =====
+# Uncomment if you have NVIDIA GPU and want faster local inference
+# torch>=2.0.0+cu118 --index-url https://download.pytorch.org/whl/cu118
+# xformers>=0.0.20  # For memory-efficient attention
+
+# ===== RECOMMENDED MODELS FOR EACH PROVIDER =====
+# 
+# Ollama (install with: ollama pull <model>):
+# - llama2 (7B) - Good general purpose
+# - mistral (7B) - Fast and capable
+# - codellama (7B) - Best for coding
+# - vicuna (7B) - Good conversational model
+# - phi (3B) - Lightweight option
+#
+# Hugging Face Transformers:
+# - microsoft/DialoGPT-medium - Conversational
+# - microsoft/CodeBERT-base - Code understanding
+# - google/flan-t5-base - Instruction following
+# - EleutherAI/gpt-neo-2.7B - General purpose
+#
+# Together AI:
+# - togethercomputer/llama-2-7b-chat
+# - togethercomputer/falcon-7b-instruct
+# - NousResearch/Nous-Hermes-llama-2-7b
+#
+# Replicate:
+# - meta/llama-2-7b-chat
+# - mistralai/mistral-7b-instruct-v0.1
+# - togethercomputer/falcon-7b-instruct
